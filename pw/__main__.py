@@ -117,10 +117,11 @@ def import_pwfile4(path, force=False):
         ldomain = pws.domains.get(domain.name)
         
         if ldomain:
-            a = prompt("domain %s found locally, merge?" % domain.name, default=0)
-            if a == 'n':
-                vprintf("skipping domain %s", domain.name)
-                continue
+            if not force:
+                a = prompt("domain %s found locally, merge?" % domain.name, default=0)
+                if a == 'n':
+                    vprintf("skipping domain %s", domain.name)
+                    continue
         else:
             pws.domains[domain.name] = Domain(domain.name)
             ldomain = pws.domains.get(domain.name)
@@ -145,19 +146,26 @@ def import_pwfile4(path, force=False):
             if seq == lseq:
                 continue
             
-            # same domain, same user, different sequence
-            a = prompt("imported user %s of domain %s uses a different sequence (%s) than the one the local user uses (%s). overwrite sequence of local user with the one of the imported user? (sequence will not be erased)" % (user.name, domain.name, seq.name, lseq.name), default=1)
-            
-            if a == 'y':
+            if force:
                 pws.domains[domain.name].users[user.name].sequence = user.sequence
+            else:
+                # same domain, same user, different sequence
+                a = prompt("imported user %s of domain %s uses a different sequence (%s) than the one the local user uses (%s). overwrite sequence of local user with the one of the imported user? (sequence will not be erased)" % (user.name, domain.name, seq.name, lseq.name), default=1)
+                
+                if a == 'y':
+                    pws.domains[domain.name].users[user.name].sequence = user.sequence
+                
     
     defa = pws2.get_sequence('DEFAULT')
     ldefa = pws.get_sequence('DEFAULT')
     if defa != ldefa:
-        a = prompt("imported default sequence (%s) differs from local default sequence (%s). use imported sequence (%s) as new default?" % (defa.name, ldefa.name, defa.name), default=1)
-        
-        if a == 'y':
+        if force:
             pws.default = defa.name
+        else:
+            a = prompt("imported default sequence (%s) differs from local default sequence (%s). use imported sequence (%s) as new default?" % (defa.name, ldefa.name, defa.name), default=1)
+            
+            if a == 'y':
+                pws.default = defa.name
     
     er = validate_pwfile(pws)
     
@@ -242,7 +250,7 @@ def main(args):
         return 1
     
     if getattr(args, 'import'):
-        return import_pwfile4(getattr(args, 'import'))
+        return import_pwfile4(getattr(args, 'import'), args.force)
         
     if not args.domain:
         args.domain = ""
