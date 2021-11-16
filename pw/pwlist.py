@@ -27,7 +27,7 @@ class Pwfile():
     def __init__(self):
         self.domains = {}
         self.sequences = {}
-        self.default = ""
+        self.default = "" # default sequence
         
         legacy1 = Sequence()
         legacy1.name = "LEGACY1"
@@ -53,6 +53,29 @@ class Pwfile():
         else:
             return self.sequences.get(name)
         
+    def rename_sequence(self, seqname, newname):
+        seq = self.get_sequence(seqname)
+        
+        if not seq:
+            return
+        
+        check_forbidden_symbol_in_name(newname)
+        
+        if self.get_sequence(newname):
+            raise ValueError("sequence '%s' already exists" % (newname))
+    
+        seq.name = newname
+        self.sequences[newname] = seq
+        # del self.sequences[seqname]
+        
+        if self.default == seqname:
+            self.default = newname
+            
+        for domain in self.domains.values():
+            for user in domain.users.values():
+                if user.sequence == seqname:
+                    user.sequence = newname
+        
         
 class Domain():
     def __init__(self, name = ""):
@@ -63,6 +86,7 @@ class User():
     def __init__(self, name = "", sequence = ""):
         self.name = name
         self.sequence = sequence
+        
 
 # functions
 def readfile(path):
@@ -72,7 +96,7 @@ def readfile(path):
     
     with open(path, mode='r') as f:
         return f.readlines()
-    
+
 def load_pwlist2(path):
     """read a pwlist2 and returns a Pwfile structure"""
     ret = Pwfile()
@@ -608,8 +632,8 @@ def save_pwlist4(path, pws):
         vprintf("nothing to export")
         
     parent = os.path.dirname(path)
-    if not os.path.exists(parent):
-        os.makedirs(os.path.dirname(parent))
+    if parent and parent != "." and not os.path.exists(parent):
+        os.makedirs(parent)
     
     # domains
     s = """# auto generated pwlist4 file containing sequences, domains and users.

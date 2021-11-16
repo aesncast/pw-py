@@ -1,38 +1,31 @@
 #!/usr/bin/env python3
 # pw_util.py: utility functions
 
-_VERBOSE = False
-_QUIET = False
+import pw.config
 
 def printf(fmt, *args):
     """Printf"""
-    global _QUIET
-    if not _QUIET:
+    if not pw.config._QUIET:
         print(fmt % args)
 
 def vprintf(fmt, *args):
     """Verbose Printf"""
-    global _VERBOSE
-    global _QUIET
-    if _VERBOSE and not _QUIET:
+    if pw.config._VERBOSE and not pw.config._QUIET:
         print(fmt % args)
 
 def info(fmt, *args):
     """Prints an info message"""
-    global _QUIET
-    if not _QUIET:
+    if not pw.config._QUIET:
         print(("[ * ] %s" % fmt) % args)
 
 def warn(fmt, *args):
     """Prints a warning message"""
-    global _QUIET
-    if not _QUIET:
+    if not pw.config._QUIET:
         print(("[ ! ] %s" % fmt) % args)
 
 def err(fmt, *args):
     """Prints an error message"""
-    global _QUIET
-    if not _QUIET:
+    if not pw.config._QUIET:
         print(("[!!!] %s" % fmt) % args)
         
 
@@ -99,3 +92,18 @@ def prompt(msg, options=['y', 'n'], default=-1, case_sensitive=False):
         break
 
     return choice
+
+
+def raise_namecount(oldname):
+    s = oldname.split("_")
+    
+    if len(s) < 2:
+        return oldname + "_2"
+    
+    i = 1
+    try:
+        i = int(s[-1])
+    except:
+        return oldname + "_2"
+    
+    return str.join('_', s[:-1] + [str(i + 1)])

@@ -4,3 +4,6 @@
 PROG = "pw-py"
 AUTHOR = "aesncast"
 VERSION = "2021.11.15"
+
+_VERBOSE = False
+_QUIET = False

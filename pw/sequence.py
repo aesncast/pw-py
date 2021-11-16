@@ -9,17 +9,28 @@ class Sequence():
         self.name = name
         self.segments = []
         self.default = False
+    
+    def __eq__(self, other):
+        return self.segments == other.segments
+
 
 class Segment():
     def __init__(self, function = ""):
         self.function = function
         self.parameters = []
+        
+    def __eq__(self, other):
+        return (self.function == other.function) and (self.parameters == other.parameters)
+        
 
 # types: field, number, string
 class Param():
     def __init__(self, typ="", value=None):
         self.typ = typ
         self.value = value
+        
+    def __eq__(self, other):
+        return (self.typ == other.typ) and (self.value == other.value)
         
         
 def param_value(param, key, domain, user):

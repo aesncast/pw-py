@@ -6,6 +6,7 @@ import sys
 import os
 import select
 import getpass
+import copy
 
 import argparse
 import clipboard
@@ -14,11 +15,11 @@ import clipboard
 from pw.sequence import execute_sequence
 from pw.transform import *
 from pw.pwlist import *
-from pw.config import *
 from pw.util import *
+import pw.config
 
-pws = None
-fp = ""
+pws = None # the loaded domain / user / sequence db
+fp = "" # the filepath to use to store / load from
 
 def complete(args):
     if not args.domain:
@@ -43,12 +44,12 @@ def load_pws_from_default_paths():
     global pws
     global fp
     
-    vprintf("loading %s", pwlist4_path)
+    vprintf("loading from path: '%s'", pwlist4_path)
     pws = load_pwlist4(pwlist4_path)
     fp = pwlist4_path
     
     if not pws:
-        vprintf("nothing found, trying to load legacy file %s", pwlist2_legacy_path)
+        vprintf("nothing found, trying to load legacy file '%s'", pwlist2_legacy_path)
         pws = load_pwlist2(pwlist2_legacy_path)
         
         if pws:
@@ -62,6 +63,111 @@ def load_pws_from_default_paths():
             pws = Pwfile()
             save_pwlist4(pwlist4_path, pws)
             pws = load_pwlist4(pwlist4_path)
+
+
+def import_pwfile4(path, force=False):
+    global pws
+    global fp
+    
+    backup_path = fp + ".old"
+    vprintf("backing up current pwlist4 to %s", backup_path)
+    save_pwlist4(backup_path, pws)
+    
+    vprintf("importing %s", path)
+    pws2 = load_pwlist(path)
+    
+    if not pws2:
+        err("could not import from '%s'", path)
+        return 1
+    
+    er = validate_pwfile(pws2)
+    
+    if er:
+        err("%s", er)
+        return 1
+    
+    to_rename = []
+    
+    for seq in pws2.sequences.values():
+        vprintf("importing sequence %s", seq.name)
+        lseq = pws.sequences.get(seq.name)
+        
+        if not lseq:
+            pws.sequences[seq.name] = copy.deepcopy(seq)
+            continue
+        
+        if seq == lseq:
+            # nothing to be done, local and imported sequences are identical
+            # in name and structure
+            continue
+        
+        nname = raise_namecount(seq.name)
+        warn("imported sequence %s differs from local sequence %s, renaming imported sequence to %s", seq.name, lseq.name, nname)
+        
+        to_rename.append((seq.name, nname))
+        # cant rename during iteration because keys will change, causing errors
+    
+    for old, new in to_rename:
+        pws2.rename_sequence(old, new)
+        pws.sequences[new] = pws2.sequences.get(new)
+        
+    
+    for domain in pws2.domains.values():
+        vprintf("importing domain %s", domain.name)
+        ldomain = pws.domains.get(domain.name)
+        
+        if ldomain:
+            a = prompt("domain %s found locally, merge?" % domain.name, default=0)
+            if a == 'n':
+                vprintf("skipping domain %s", domain.name)
+                continue
+        else:
+            pws.domains[domain.name] = Domain(domain.name)
+            ldomain = pws.domains.get(domain.name)
+            
+        for user in domain.users.values():
+            vprintf("importing user %s", user.name)
+            luser = ldomain.users.get(user.name)
+            
+            if not luser:
+                ldomain.users[user.name] = User(user.name, user.sequence)
+                continue
+                
+            seq = pws2.sequences.get(user.sequence)
+            lseq = pws.sequences.get(luser.sequence)
+            
+            # special case:
+            # local pws has a sequence named user.sequence
+            # but it differs from imported sequence seq.
+            # this case is not possible if those sequences are renamed
+            # before we come here (see above for importing sequences).
+            
+            if seq == lseq:
+                continue
+            
+            # same domain, same user, different sequence
+            a = prompt("imported user %s of domain %s uses a different sequence (%s) than the one the local user uses (%s). overwrite sequence of local user with the one of the imported user? (sequence will not be erased)" % (user.name, domain.name, seq.name, lseq.name), default=1)
+            
+            if a == 'y':
+                pws.domains[domain.name].users[user.name].sequence = user.sequence
+    
+    defa = pws2.get_sequence('DEFAULT')
+    ldefa = pws.get_sequence('DEFAULT')
+    if defa != ldefa:
+        a = prompt("imported default sequence (%s) differs from local default sequence (%s). use imported sequence (%s) as new default?" % (defa.name, ldefa.name, defa.name), default=1)
+        
+        if a == 'y':
+            pws.default = defa.name
+    
+    er = validate_pwfile(pws)
+    
+    if er:
+        err("%s", er)
+        return 1
+    
+    printf("import successful, saving changes to %s", fp)
+    save_pwlist4(fp, pws)
+    return 0
     
     
 def get_sequence_name(args):
@@ -123,7 +229,7 @@ def main(args):
     global fp
     
     if args.file:
-        vprintf("loading %s", args.file)
+        vprintf("loading from file: '%s'", args.file)
         pws = load_pwlist(args.file)
         fp = args.file
     else:
@@ -134,6 +240,9 @@ def main(args):
     if err:
         err("%s", err)
         return 1
+    
+    if getattr(args, 'import'):
+        return import_pwfile4(getattr(args, 'import'))
         
     if not args.domain:
         args.domain = ""
@@ -164,7 +273,7 @@ def main(args):
     
     pw = execute_sequence(seq, key, args.domain, args.user)
     add_user(args.domain, args.user, seq.name)
-    vprintf("saving changes")
+    vprintf("saving changes to '%s'", fp)
     save_pwlist4(fp, pws)
     
     timeout = 5
@@ -172,6 +281,7 @@ def main(args):
     clipboard.copy(pw)
     
     try:
+        # problem code in windows:
         select.select([sys.stdin], [], [], timeout)
     finally:
         clipboard.copy("")
@@ -182,14 +292,16 @@ def main(args):
 def get_argument_parser():
     """creates and returns a parser for the command line arguments"""
     parser = argparse.ArgumentParser(prog=PROG, formatter_class=argparse.RawDescriptionHelpFormatter, description="""password generator v%s
-by %s""" % (VERSION, AUTHOR))
+by %s""" % (pw.config.VERSION, pw.config.AUTHOR))
 
-    parser.add_argument('--version', action='version', version="%s v%s" % (PROG, VERSION))
+    parser.add_argument('--version', action='version', version="%s v%s" % (pw.config.PROG, pw.config.VERSION))
     parser.add_argument('-v', '--verbose', help="display extra information", action="store_true")
     parser.add_argument('-q', '--quiet', help="display no messages", action="store_true")
     parser.add_argument('-l', '--list', help="list domains or users of a given domain", action="store_true")
     parser.add_argument('-s', '--sequence', help="generation sequence", default=None)
     parser.add_argument('-f', '--file', help="pwlist2 or pwlist4 file to use", default=None)
+    parser.add_argument('-i', '--import', help="pwlist4 file to import", default=None)
+    parser.add_argument('--force', help="used with -i to force overwrite of local pwfile", action="store_true")
     parser.add_argument('--transformations', help="view available transformation functions", action="store_true")
     # parser.add_argument('-i', '--import', help="pwlist2 or pwlist4 file to import", default=None)
 
@@ -203,8 +315,8 @@ by %s""" % (VERSION, AUTHOR))
 def __main__():
     args = get_argument_parser().parse_args()
 
-    _VERBOSE = args.verbose
-    _QUIET = args.quiet
+    pw.config._VERBOSE = args.verbose
+    pw.config._QUIET = args.quiet
     
     if args.transformations:
         show_transformations()
