@@ -37,6 +37,7 @@ def err(fmt, *args):
         
 
 def multisplit(s, *args):
+    """like str.split, but takes any number of arguments to split at."""
     if not args:
         return [s]
     

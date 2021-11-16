@@ -33,6 +33,11 @@ def complete(args):
     return 0
 
 
+def show_transformations():
+    for t in transformations.values():
+        print(t.get_doc(), "\n")
+
+
 def load_pws_from_default_paths():
     """searches the default paths for pwlist files"""
     global pws
@@ -172,6 +177,7 @@ def main(args):
         clipboard.copy("")
     
     return 0
+
     
 def get_argument_parser():
     """creates and returns a parser for the command line arguments"""
@@ -184,6 +190,7 @@ by %s""" % (VERSION, AUTHOR))
     parser.add_argument('-l', '--list', help="list domains or users of a given domain", action="store_true")
     parser.add_argument('-s', '--sequence', help="generation sequence", default=None)
     parser.add_argument('-f', '--file', help="pwlist2 or pwlist4 file to use", default=None)
+    parser.add_argument('--transformations', help="view available transformation functions", action="store_true")
     # parser.add_argument('-i', '--import', help="pwlist2 or pwlist4 file to import", default=None)
 
     # these are optional because argparse is bad
@@ -198,6 +205,10 @@ def __main__():
 
     _VERBOSE = args.verbose
     _QUIET = args.quiet
+    
+    if args.transformations:
+        show_transformations()
+        sys.exit(0)
 
     ret = 0
     try:

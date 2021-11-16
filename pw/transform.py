@@ -11,42 +11,49 @@ from pw.wordlist import wordlist
 from pw.util import *
 
 def base58(s):
+    """converts the input to base58"""
     if isinstance(s, str):
         s = s.encode()
     
     return b58.b58encode(s)
 
 def base64(s):
+    """converts the input to base64"""
     if isinstance(s, str):
         s = s.encode()
     
     return b64.b64encode(s)
 
 def sha256(s):
+    """gets the sha256 hash of the input"""
     if isinstance(s, str):
         s = s.encode()
         
     return hashlib.sha256(s).digest()
 
 def sha512(s):
+    """gets the sha512 hash of the input"""
     if isinstance(s, str):
         s = s.encode()
         
     return hashlib.sha512(s).digest()
 
 def append(s, s2):
+    """appends the parameter to the input at the end"""
     if not (isinstance(s, str)):
         s = s.decode()
     
     return s + str(s2)
 
 def prepend(s, s2):
+    """prepends the parameter to the input at the start"""
     if not (isinstance(s, str)):
         s = s.decode()
     
     return str(s2) + s
 
 def init(s, key, domain, user):
+    """appends key, domain and user to the input. generally used to initialize transformation sequences"""
     s = append(s, key)
     s = append(s, ":")
     s = append(s, user)
@@ -55,29 +62,34 @@ def init(s, key, domain, user):
     return s
 
 def cut(s, begin, end):
+    """cuts the input from the beginning index to the end index, exclusive"""
     if not (isinstance(s, str)):
         s = s.decode()
         
     return s[begin:end]
 
-def limit(s, length):
-    return cut(s, 0, length)
+def limit(s, n):
+    """limits the input to n characters"""
+    return cut(s, 0, n)
 
 def replace(s, to_replace, replacement):
+    """replaces a given string in the input with another string"""
     return s.replace(to_replace, replacement)
 
 def to_int(s):
+    """converts the bytes of the input to an integer"""
     if isinstance(s, str):
         s = s.encode()
     
     return int.from_bytes(s, "little")
     
 def seed(s, min_int = 0, max_int = 2**32-1):
+    """gets a deterministic seed in the given range from the input"""
     random.seed(s)
     return random.randint(min_int, max_int)
     
 def make_unambiguous(s):
-    """attempt to replace ambigous characters with not-so-ambiguous ones"""
+    """attempts to replace ambigous characters with not-so-ambiguous ones in the input"""
     # full list, don't implement: https://www.unicode.org/Public/security/latest/confusables.txt
     
     if not (isinstance(s, str)):
@@ -97,7 +109,7 @@ def make_unambiguous(s):
     return s
 
 def add_special_characters(s, min_count, max_count, special_chars):
-    """adds special characters to a string"""
+    """adds characters to the input"""
     if not (isinstance(s, str)):
         s = s.decode()
         
@@ -127,11 +139,12 @@ def add_special_characters(s, min_count, max_count, special_chars):
         
         
 def add_simple_special_characters(s, min_count, max_count):
+    """adds a predefined set of special characters to the input"""
     return add_special_characters(s, min_count, max_count, "#+*%&[]=?_.:")
 
         
 def add_some_special_characters(s, special_chars):
-    """adds at most sqrt(len(s))/2 special characters, but at least 1"""
+    """adds at most sqrt(len(s))/2 special characters to the input, but at least 1"""
     if not (isinstance(s, str)):
         s = s.decode()
     
@@ -140,7 +153,7 @@ def add_some_special_characters(s, special_chars):
 
 
 def add_some_simple_special_characters(s):
-    """adds at most sqrt(len(s))/2 special characters, but at least 1"""
+    """adds at most sqrt(len(s))/2 predefined special characters to the input, but at least 1"""
     if not (isinstance(s, str)):
         s = s.decode()
     
@@ -149,7 +162,7 @@ def add_some_simple_special_characters(s):
 
 
 def capitalize_some(s):
-    """capitalizes some words found in s, maybe all, but at least one"""
+    """capitalizes some words found in the input, maybe all, but at least one"""
     if not (isinstance(s, str)):
         s = s.decode()
         
@@ -171,38 +184,38 @@ def capitalize_some(s):
     return s
 
 
-# wordlist original length = 7701
-def diceware(s, min_count, max_count, wordlist_length = 7702):
-    """generate word sequences from a given string as seed"""
+def diceware(s, min_count, max_count, words = wordlist):
+    """generate word sequences of the given wordlist using the input as seed"""
     if not (isinstance(s, str)):
         s = s.decode()
         
     num_words = seed(s, min_count, max_count)
     
     l = []
-    lwl = wordlist_length-1
+    lwl = len(words)-1
     
     for i in range(0, num_words):
         hsh = sha256(s + str(i))
-        l.append(wordlist[seed(hsh, 0, lwl)])
+        l.append(words[seed(hsh, 0, lwl)])
         
     return str.join(' ', l)
 
 
 def diceware_short(s):
-    """diceware(s, 3, 5)"""
+    """generates 3 to 5 diceware words from the input"""
     return diceware(s, 3, 5)
     
     
 def diceware_long(s):
-    """diceware(s, 4, 6)"""
+    """generates 4 to 6 diceware words from the input"""
     return diceware(s, 4, 6)
+        
         
 ####################
 #      LEGACY      #
 ####################
 def bad_make_easy_to_read(s):
-    """arbitrary bad replacement"""
+    """DO NOT USE. arbitrary bad replacement"""
     if not (isinstance(s, str)):
         s = s.decode()
         
@@ -218,7 +231,7 @@ def bad_make_easy_to_read(s):
     return s
 
 def bad_seed_from_str(s):
-    """arbitrary integer from a string"""
+    """DO NOT USE. arbitrary integer from a string"""
     if not (isinstance(s, str)):
         s = s.decode()
         
@@ -232,7 +245,7 @@ def bad_seed_from_str(s):
     return int(seedstr)
 
 def bad_add_special_characters(s):
-    """add deterministic special characters to a string"""
+    """DO NOT USE. add deterministic special characters to a string"""
     
     seed = bad_seed_from_str(s)
     seps = seed % 5
@@ -252,7 +265,7 @@ def bad_add_special_characters(s):
 
 
 def bad_legacy1(ret, key, domain):
-    """the original"""
+    """DO NOT USE. the original"""
     ret = append(ret, key)
     ret = append(ret, ":")
     ret = append(ret, domain)
@@ -268,7 +281,7 @@ def bad_legacy1(ret, key, domain):
 
 
 def bad_legacy2(ret, key, domain, user):
-    """version 2 to 3.1"""
+    """DO NOT USE. pw version 2 to 3.1"""
     if len(user) == 0:
         ret = append(ret, key)
         ret = append(ret, "@")
@@ -303,6 +316,29 @@ class Transformation():
         
     def __call__(self, *args):
         return self.function(*args)
+    
+    def get_doc(self):
+        prms_ = inspect.signature(self.function).parameters
+        prms = []
+        
+        i = False
+        for p in prms_:
+            if not i:
+                i = True
+                continue
+            
+            prms.append(p)
+            
+        doc = self.function.__name__
+        
+        doc += "("
+        doc += str.join(", ", prms)
+        doc += "):\n  "
+        
+        doc += self.function.__doc__
+        
+        return doc
+        
         
 transformations = {}
 
