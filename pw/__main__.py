@@ -63,9 +63,10 @@ def load_pws_from_default_paths():
             pws = Pwfile()
             save_pwlist4(pwlist4_path, pws)
             pws = load_pwlist4(pwlist4_path)
-
+            
 
 def import_pwfile4(path, force=False):
+    """import domains, users and sequences from a given path"""
     global pws
     global fp
     
