@@ -308,7 +308,6 @@ by %s""" % (pw.config.VERSION, pw.config.AUTHOR))
     parser.add_argument('-i', '--import', help="pwlist4 file to import", default=None)
     parser.add_argument('--force', help="used with -i to force overwrite of local pwfile", action="store_true")
     parser.add_argument('--transformations', help="view available transformation functions", action="store_true")
-    # parser.add_argument('-i', '--import', help="pwlist2 or pwlist4 file to import", default=None)
 
     # these are optional because argparse is bad
     parser.add_argument('domain', help="""the domain""", nargs="?")
