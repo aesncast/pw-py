@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # pw_util.py: utility functions
 
+import os
 import pw.config
 
 def printf(fmt, *args):
@@ -107,3 +108,29 @@ def raise_namecount(oldname):
         return oldname + "_2"
     
     return str.join('_', s[:-1] + [str(i + 1)])
+
+
+def input_timeout(timeout=5):
+    try:
+        if os.name in ["nt", "win32"]:
+            import msvcrt, sys, time
+            start_time = time.time()
+            input = ''
+            while True:
+                if msvcrt.kbhit():
+                    chr = msvcrt.getche()
+                    if ord(chr) == 13: # enter_key
+                        break
+                    elif ord(chr) >= 32: #space_char
+                        input += chr
+                if len(input) == 0 and (time.time() - start_time) > timeout:
+                    break
+
+            print()
+            return input
+
+        else:
+            import select
+            return select.select([sys.stdin], [], [], timeout)
+    except:
+        return ""

@@ -4,7 +4,6 @@
 
 import sys
 import os
-import select
 import getpass
 import copy
 
@@ -289,11 +288,8 @@ def main(args):
     vprintf("password copied, clearing in %d seconds", timeout)
     clipboard.copy(pw)
     
-    try:
-        # problem code in windows:
-        select.select([sys.stdin], [], [], timeout)
-    finally:
-        clipboard.copy("")
+    input_timeout(5)
+    clipboard.copy("")
     
     return 0
 
