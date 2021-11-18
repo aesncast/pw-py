@@ -8,9 +8,9 @@ setup_info = dict(
     name=PROG,
     version=VERSION,
     author=AUTHOR,
-    author_email='',
+    author_email='94376350+aesncast@users.noreply.github.com',
     url='TODO',
-    download_url='TODO',
+    download_url='https://github.com/aesncast/pw-py/releases/latest',
     project_urls={
         'Documentation': 'TODO',
         'Source': 'https://github.com/aesncast/pw-py',
