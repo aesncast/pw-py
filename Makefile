@@ -13,6 +13,7 @@ all: ${EXE}
 	true
 
 ${EXE}: ${SOURCES}
+	python3 pw/config.py &&\
 	pyinstaller --onefile --console "${IN}" -n ${PROG} \
 	--exclude-module "PyQt5"
 # TODO: optimize pyinstaller build
