@@ -1,0 +1,14 @@
+#compdef _pw pw
+
+function _pw()
+{
+    local line
+
+    _arguments -C \
+        "1: :($(pw -l))" \
+        "*::arg:->args"
+
+    if [ x"$line" != x"" ]; then
+        _arguments "1: :($(pw -l $line[1]))"
+    fi
+}
