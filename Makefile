@@ -7,7 +7,7 @@ MD5SUMS=md5sums.txt
 SHA256SUMS=sha256sums.txt
 SUMS=dist/${MD5SUMS} dist/${SHA256SUMS}
 
-.PHONY: tests sign
+.PHONY: tests sign clean
 
 all: ${EXE}
 	true
@@ -29,3 +29,6 @@ dist/${MD5SUMS}: ${EXE} ${EXE}.exe
 
 dist/${SHA256SUMS}: ${EXE} ${EXE}.exe
 	cd dist && sha256sum ${PROG} ${PROG}.exe > ${SHA256SUMS}
+
+clean:
+	rm -rf ./build ./dist pw-py.spec
