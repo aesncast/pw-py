@@ -1,3 +1,3 @@
 @echo off
 
-pyinstaller --onefile --console pw\__main__.py -n pw-py
+pyinstaller -i images\icon.ico --onefile --console pw\__main__.py -n pw-py
