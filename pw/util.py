@@ -131,6 +131,7 @@ def input_timeout(timeout=5):
 
         else:
             import select
+            import sys
             return select.select([sys.stdin], [], [], timeout)
     except:
         return ""
