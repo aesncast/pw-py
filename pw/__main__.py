@@ -243,10 +243,10 @@ def main(args):
     else:
         load_pws_from_default_paths()
     
-    err = validate_pwfile(pws)
+    er = validate_pwfile(pws)
         
-    if err:
-        err("%s", err)
+    if er:
+        err("%s", er)
         return 1
     
     if getattr(args, 'import'):
