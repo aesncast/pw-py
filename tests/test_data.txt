@@ -1,0 +1,76 @@
+# syntax for gentests:
+# <function name>:
+#   "<key>" "<domain>" "<user>" - "<expected value>"
+# (<sequence name>):
+#   "<key>" "<domain>" "<user>" - "<expected value>"
+# also sequence definitions possible, same as pwlist4
+
+[good_password]
+    init($key, $domain, $user)
+    diceware(4, 4)
+    capitalize_some()
+    add_some_simple_special_characters()
+
+bad_legacy1:
+    "" "" "" - "56wHhmaODaDwK2K9BPRf\n"
+    "a" "a" "a" - "muanOrnvE48mmYEgkG0v\n"
+    "a" "b" "c" - "Z4OjHqv2jMwGYPk1wIJi\n"
+    "b" "b" "b" - "xTxqrE7jaNpabaXDlUWd\n"
+    "c" "c" "c" - "Z1xnYm11s8etfKyjZqKd\n"
+    "abc" "abc" "abc" - "CgVRIX6ldLbfKkqVrZYj\n"
+    "abc" "ghi" "def" - "rsuF1zJBBwGExgRhDJ1Z\n"
+    "key" "domain" "user" - "k9Dz6RwfbTTZtxnJjcEs\n"
+    "1" "1" "1" - "1rWRXEYFe8sAX0b2Qz32\n"
+    "1" "2" "3" - "ZzrusIz7sAuR5ePGC1uj\n" 
+    "4" "5" "6" - "WiPpahIxLEFVUBPtKltA\n" 
+    "7" "8" "9" - "E5OsgOaaiZHOpKg8aGq5\n"
+    "0" "0" "0" - "rHI2ilhqGMGQiDk1c84D\n"
+    "hello" "world" "!" - "3IC9zV0iNYUkJO73PN9x\n"
+
+bad_legacy2:
+    "" "" "" - "6Xucw!MHuL?Gaa8 x9sR\n"
+    "a" "a" "a" - "AMSy4DCEWBPMvJE53pRh\n"
+    "a" "b" "c" - "nXuBC482PBPFxxaxbgPK\n"
+    "b" "b" "b" - "Za7ddHuw8zmyGthzNTrN\n"
+    "c" "c" "c" - "yTPv4xEWdqPRrhtVX2GP\n"
+    "abc" "abc" "abc" - "BgKch!YutD?MhjB Q4uc\n"
+    "abc" "ghi" "def" - "EVQJY4;M8pYr!e7PNd?P\n"
+    "key" "domain" "user" - "GwsBsNnW5j6nhMrRh3E5\n"
+    "1" "1" "1" - "25zhGBX8Uf,xTapMVSGf\n"
+    "1" "2" "3" - "dBr3qrjjNy,NcpQ4hWpg\n"
+    "4" "5" "6" - "Kf6aB!fRun?UEDL bC8U\n"
+    "7" "8" "9" - "QWk2dXNKNr,bgPndUpEQ\n"
+    "0" "0" "0" - "PTjy364VzXQ5rrfhCYvx\n"
+    "hello" "world" "!" - "fqCCvPrSKQyvTuEFK4XG\n"
+
+(good_password):
+    "" "" "" - "Treat Go&p Tug 5th"
+    "a" "a" "a" - "leona Asset shar%k utter"
+    "a" "b" "c" - "Owens Farad: 6000 Doze_n"
+    "b" "b" "b" - "jkl Zing? Chomp phyla]"
+    "c" "c" "c" - "Byway Flow vying Subtl=y"
+    "abc" "abc" "abc" - "80 #Tone Prom D:rank"
+    "abc" "ghi" "def" - "Scald+ qh knurl Braun"
+    "key" "domain" "user" - "ga_ur fin=e des Wac"
+    "1" "1" "1" - "Hast da.da scol&d Fuel"
+    "1" "2" "3" - "Suave t_ube sworn duet"
+    "4" "5" "6" - "a]rcana lease= Knapp rare"
+    "7" "8" "9" - "Lsi Po*et Spice Sylow"
+    "0" "0" "0" - "Aye Seno_r Bi #taft"
+    "hello" "world" "!" - "junk Zc fl=eck hat"
+
+# function:
+#     "" "" "" - 
+#     "a" "a" "a" - 
+#     "a" "b" "c" - 
+#     "b" "b" "b" - 
+#     "c" "c" "c" - 
+#     "abc" "abc" "abc" - 
+#     "abc" "ghi" "def" - 
+#     "key" "domain" "user" - 
+#     "1" "1" "1" - 
+#     "1" "2" "3" - 
+#     "4" "5" "6" - 
+#     "7" "8" "9" - 
+#     "0" "0" "0" - 
+#     "hello" "world" "!" - 

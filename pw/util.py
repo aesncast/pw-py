@@ -113,16 +113,22 @@ def raise_namecount(oldname):
 def input_timeout(timeout=5):
     try:
         if os.name in ["nt", "win32"]:
+            # https://stackoverflow.com/a/41812246
             import msvcrt, sys, time
+            
             start_time = time.time()
             input = ''
+            
             while True:
                 if msvcrt.kbhit():
                     chr = msvcrt.getche()
-                    if ord(chr) == 13: # enter_key
+                    
+                    if ord(chr) == 13:
                         break
-                    elif ord(chr) >= 32: #space_char
+                    
+                    elif ord(chr) >= 32:
                         input += chr
+                        
                 if len(input) == 0 and (time.time() - start_time) > timeout:
                     break
 
