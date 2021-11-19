@@ -536,8 +536,8 @@ def load_pwlist4(path):
         gpw.segments.append(gpwseg1)
         
         gpwseg2 = Segment()
-        gpwseg2.function = "diceware_short"
-        gpwseg2.parameters = []
+        gpwseg2.function = "diceware"
+        gpwseg2.parameters = [Param("number", 4), Param("number", 4)]
         gpw.segments.append(gpwseg2)
         
         gpwseg3 = Segment()

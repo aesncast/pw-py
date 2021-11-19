@@ -184,7 +184,7 @@ def capitalize_some(s):
     return s
 
 
-def diceware(s, min_count, max_count, words = wordlist):
+def diceware_list(s, min_count, max_count, words = wordlist):
     """generate word sequences of the given wordlist using the input as seed"""
     if not (isinstance(s, str)):
         s = s.decode()
@@ -201,14 +201,17 @@ def diceware(s, min_count, max_count, words = wordlist):
     return str.join(' ', l)
 
 
+def diceware(s, min_count, max_count):
+    """generate word sequences of the default wordlist using the input as seed"""
+    return diceware_list(s, min_count, max_count, wordlist)
+
 def diceware_short(s):
-    """generates 3 to 5 diceware words from the input"""
-    return diceware(s, 3, 5)
-    
+    """generates 3 to 4 diceware words from the input"""
+    return diceware(s, 3, 4)
     
 def diceware_long(s):
-    """generates 4 to 6 diceware words from the input"""
-    return diceware(s, 4, 6)
+    """generates 4 to 5 diceware words from the input"""
+    return diceware(s, 4, 5)
         
         
 ####################
