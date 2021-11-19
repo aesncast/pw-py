@@ -167,7 +167,12 @@ def capitalize_some(s):
         s = s.decode()
         
     words = multisplit(s, [" ", ".", "_"])
+    words = list(filter(lambda w: w and w[0].isalpha(), words))
     lw = len(words)
+
+    if lw == 0:
+        # nothing to capitalize
+        return s
     
     num_words = seed(s, 1, lw)
     
