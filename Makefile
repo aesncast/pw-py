@@ -32,4 +32,4 @@ dist/${SHA256SUMS}: ${EXE} ${EXE}.exe
 	cd dist && sha256sum ${PROG} ${PROG}.exe > ${SHA256SUMS}
 
 clean:
-	rm -rf ./build ./dist pw-py.spec
+	rm -rf ./build ./dist pw-py.spec pw_py.egg-info
