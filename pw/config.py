@@ -3,7 +3,7 @@
 
 PROG = "pw-py"
 AUTHOR = "aesncast"
-VERSION = "2021.11.19"
+VERSION = "2021.11.20"
 
 _VERBOSE = False
 _QUIET = False
