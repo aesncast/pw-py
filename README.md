@@ -7,17 +7,14 @@ This command-line tool deterministically generates passwords.
 You can provide a domain, a user and a key and the tool will always give the same password for the same domain, user and key combination.
 
 ## Usage
-
-- Basic Usage
-
+Basic Usage:
 ```
 $ pw-py <domain> <user>
 Encryption key: <key>
 (password is now copied to clipboard for 5 seconds)
 ```
 
-- Example
-
+Example:
 ```
 $ pw-py github.com aesncast
 Encryption key: mykey
@@ -37,13 +34,16 @@ Some systems might need non-Python libraries or executables for pw-py to work co
 
 ## Building standalone executable
 Skip this step if only an installation is needed.
+
 Python3 `pyinstaller` is required to build a standalone executable.
+
 Execute the following command to build a standalone executable in `dist/`:
 
     $ make
 
 ## Installing
 Python `setuptools` are required to properly resolve dependencies and install pw-py.
+
 Execute the following command to install pw-py libraries and console script (`sudo` may be required on Linux):
 
     $ python3 ./setup.py install
@@ -55,6 +55,7 @@ or
 ## Sequences
 
 pw-py offers the use of transformation sequences to transform the input triple (key, domain, user) into a password.
+
 Upon the first start of pw-py, if no pwfile4 exists on the system, an empty pwlist4 with a sequence called `good_password` will be generated in `<pw-py local data directory>/pwlist4` and looks something like this:
 
 ```
@@ -92,9 +93,12 @@ To generate good passwords.
 
 ### Why not use [ss64 password generator](https://ss64.com/pass/)?
 While [ss64 password generator](https://ss64.com/pass/) generates long, strong passwords, the generated passwords are complex (i.e. good luck remembering them), therefore causing you to depend on the password generator to have access to anything that uses the generated passwords.
+
 pw-py generates passwords that are (by default) easier to remember by generating a phrase which uses words from the [diceware](https://theworld.com/%7Ereinhold/diceware.wordlist.asc) wordlist (and includes spaces as well for legibility).
+
 And pw-py has a built-in compatibility sequence to generate the same passwords that the [ss64 password generator](https://ss64.com/pass/) generates.
 
 ### So is this a password manager?
 No, pw-py only remembers domains, users and sequences.
+
 No keys or passwords will be remembered, do that yourself.
