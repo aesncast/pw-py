@@ -285,7 +285,7 @@ def main(args):
     save_pwlist4(fp, pws)
     
     timeout = 5
-    vprintf("password copied, clearing in %d seconds", timeout)
+    printf("password copied, clearing in %d seconds", timeout)
     clipboard.copy(pw)
     
     input_timeout(5)
