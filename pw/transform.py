@@ -113,6 +113,12 @@ def add_special_characters(s, min_count, max_count, special_chars):
     if not (isinstance(s, str)):
         s = s.decode()
         
+    if max_count < min_count:
+        return s
+    
+    if max_count < 0:
+        return s
+    
     ls = len(s)
     num_chars = min(seed(s, min_count, max_count), ls)
     
@@ -148,7 +154,7 @@ def add_some_special_characters(s, special_chars):
     if not (isinstance(s, str)):
         s = s.decode()
     
-    num_chars = math.floor(math.sqrt(len(s))/2)
+    num_chars = max(math.floor(math.sqrt(len(s))/2), 1)
     return add_special_characters(s, 1, num_chars, special_chars)
 
 
@@ -157,7 +163,7 @@ def add_some_simple_special_characters(s):
     if not (isinstance(s, str)):
         s = s.decode()
     
-    num_chars = math.floor(math.sqrt(len(s))/2)
+    num_chars = max(math.floor(math.sqrt(len(s))/2), 1)
     return add_simple_special_characters(s, 1, num_chars)
 
 
