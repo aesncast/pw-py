@@ -19,7 +19,8 @@ ${EXE}: ${SOURCES}
 # TODO: optimize pyinstaller build
 
 tests:
-	PYTHONPATH=./:${PYTHONPATH} python3 ./tests/compatibility_tests.py
+	PYTHONPATH=./:${PYTHONPATH} python3 ./tests/compatibility_tests.py &&\
+	PYTHONPATH=./:${PYTHONPATH} python3 ./tests/transform_tests.py
 
 sign: ${SUMS}
 	gpg --output dist/md5sums.txt.asc --detach-sign --armor dist/${MD5SUMS} &&\

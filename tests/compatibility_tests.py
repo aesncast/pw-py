@@ -60,6 +60,8 @@ def run_tests():
             if val != case.value:
                 raise AssertionError("assertion failed: %s(%s, %s, %s) == %s, got %s" % (name, repr(case.key), repr(case.domain), repr(case.user), repr(case.value), repr(val)))
 
+    print("%s: all tests passed" % __file__)
+
 
 def parse_function_name(line):
     line = line.strip()
@@ -233,4 +235,3 @@ if __name__ == "__main__":
     fp = os.path.dirname(__file__) + "/test_data.txt"
     parse_tests(fp)
     run_tests()
-    print("all tests passed")
