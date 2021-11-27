@@ -10,6 +10,17 @@ import inspect
 from pw.wordlist import wordlist
 from pw.util import *
 
+def to_string(s):
+    """attempts to convert an arbitrary object to str"""
+    if isinstance(s, str):
+        return s
+    elif isinstance(s, bytes):
+        return s.decode()
+    elif isinstance(s, (int, float)):
+        return str(s)
+
+    return ""
+
 def base58(s):
     """converts the input to base58"""
     if isinstance(s, str):
@@ -38,17 +49,27 @@ def sha512(s):
         
     return hashlib.sha512(s).digest()
 
+def to_int(s):
+    """converts the bytes of the input to an integer"""
+    if isinstance(s, str):
+        s = s.encode()
+    
+    return int.from_bytes(s, "little")
+    
+def seed(s, min_int = 0, max_int = 2**32-1):
+    """gets a deterministic seed in the given range from the input"""
+    random.seed(s)
+    return random.randint(min_int, max_int)
+
 def append(s, s2):
     """appends the parameter to the input at the end"""
-    if not (isinstance(s, str)):
-        s = s.decode()
+    s = to_string(s)
     
     return s + str(s2)
 
 def prepend(s, s2):
     """prepends the parameter to the input at the start"""
-    if not (isinstance(s, str)):
-        s = s.decode()
+    s = to_string(s)
     
     return str(s2) + s
 
@@ -63,8 +84,16 @@ def init(s, key, domain, user):
 
 def cut(s, begin, end):
     """cuts the input from the beginning index to the end index, exclusive"""
-    if not (isinstance(s, str)):
-        s = s.decode()
+    s = to_string(s)
+
+    if begin < 0:
+        begin = 0
+
+    if end > len(s):
+        end = len(s)
+
+    if begin >= end:
+        return ""
         
     return s[begin:end]
 
@@ -76,24 +105,40 @@ def replace(s, to_replace, replacement):
     """replaces a given string in the input with another string"""
     return s.replace(to_replace, replacement)
 
-def to_int(s):
-    """converts the bytes of the input to an integer"""
-    if isinstance(s, str):
-        s = s.encode()
-    
-    return int.from_bytes(s, "little")
-    
-def seed(s, min_int = 0, max_int = 2**32-1):
-    """gets a deterministic seed in the given range from the input"""
-    random.seed(s)
-    return random.randint(min_int, max_int)
+def replace_at(s, index, replacement):
+    """replaces a single character at the given index with another"""
+    s = to_string(s)
+
+    if not s:
+        return s
+
+    if index < 0:
+        index = 0
+
+    if index >= len(s):
+        index = len(s)-1
+
+    s = s[:index] + replacement + s[index+1:]
+    return s
+
+def insert(s, index, to_insert):
+    """inserts a string into another at the given index"""
+    s = to_string(s)
+
+    if index < 0:
+        index = 0
+
+    if index > len(s):
+        index = len(s)
+
+    s = s[:index] + to_insert + s[index:]
+    return s
     
 def make_unambiguous(s):
     """attempts to replace ambigous characters with not-so-ambiguous ones in the input"""
     # full list, don't implement: https://www.unicode.org/Public/security/latest/confusables.txt
     
-    if not (isinstance(s, str)):
-        s = s.decode()
+    s = to_string(s)
         
     if len(s) == 0:
         return s
@@ -110,8 +155,7 @@ def make_unambiguous(s):
 
 def add_special_characters(s, min_count, max_count, special_chars):
     """adds characters to the input"""
-    if not (isinstance(s, str)):
-        s = s.decode()
+    s = to_string(s)
         
     if max_count < min_count:
         return s
@@ -151,8 +195,7 @@ def add_simple_special_characters(s, min_count, max_count):
         
 def add_some_special_characters(s, special_chars):
     """adds at most sqrt(len(s))/2 special characters to the input, but at least 1"""
-    if not (isinstance(s, str)):
-        s = s.decode()
+    s = to_string(s)
     
     num_chars = max(math.floor(math.sqrt(len(s))/2), 1)
     return add_special_characters(s, 1, num_chars, special_chars)
@@ -160,8 +203,7 @@ def add_some_special_characters(s, special_chars):
 
 def add_some_simple_special_characters(s):
     """adds at most sqrt(len(s))/2 predefined special characters to the input, but at least 1"""
-    if not (isinstance(s, str)):
-        s = s.decode()
+    s = to_string(s)
     
     num_chars = max(math.floor(math.sqrt(len(s))/2), 1)
     return add_simple_special_characters(s, 1, num_chars)
@@ -169,8 +211,7 @@ def add_some_simple_special_characters(s):
 
 def capitalize_some(s):
     """capitalizes some words found in the input, maybe all, but at least one"""
-    if not (isinstance(s, str)):
-        s = s.decode()
+    s = to_string(s)
         
     words = multisplit(s, [" ", ".", "_"])
     words = list(filter(lambda w: w and w[0].isalpha(), words))
@@ -197,8 +238,7 @@ def capitalize_some(s):
 
 def diceware_list(s, min_count, max_count, words = wordlist):
     """generate word sequences of the given wordlist using the input as seed"""
-    if not (isinstance(s, str)):
-        s = s.decode()
+    s = to_string(s)
         
     num_words = seed(s, min_count, max_count)
     
@@ -230,8 +270,7 @@ def diceware_long(s):
 ####################
 def bad_make_easy_to_read(s):
     """DO NOT USE. arbitrary bad replacement"""
-    if not (isinstance(s, str)):
-        s = s.decode()
+    s = to_string(s)
         
     s = replace(s, "i", "u")
     s = replace(s, "I", "P")
@@ -246,8 +285,7 @@ def bad_make_easy_to_read(s):
 
 def bad_seed_from_str(s):
     """DO NOT USE. arbitrary integer from a string"""
-    if not (isinstance(s, str)):
-        s = s.decode()
+    s = to_string(s)
         
     b64_bytes = base64(s)[0:5]
     b64_bytes += b'\n'
@@ -356,5 +394,5 @@ class Transformation():
         
 transformations = {}
 
-for func in [base58, base64, sha256, sha512, append, prepend, init, cut, limit, replace, to_int, seed, make_unambiguous, add_special_characters, add_simple_special_characters, add_some_special_characters, add_some_simple_special_characters, capitalize_some, diceware, diceware_short, diceware_long, bad_legacy1, bad_legacy2]:
+for func in [base58, base64, sha256, sha512, to_int, seed, append, prepend, init, cut, limit, replace, replace_at, insert, make_unambiguous, add_special_characters, add_simple_special_characters, add_some_special_characters, add_some_simple_special_characters, capitalize_some, diceware, diceware_short, diceware_long, bad_legacy1, bad_legacy2]:
     transformations[func.__name__] = Transformation(func)
