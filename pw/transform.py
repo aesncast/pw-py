@@ -292,6 +292,7 @@ def bad_seed_from_str(s):
     
     seedstr = "%0d" % int.from_bytes(b64_bytes[0:4], "little")
     if len(b64_bytes) > 4:
+        print(b64_bytes[4:], "-", int.from_bytes(b64_bytes[4:], "little"))
         seedstr += "%0d" % int.from_bytes(b64_bytes[4:], "little")
     
     return int(seedstr)

@@ -43,7 +43,6 @@ def load_pws_from_default_paths():
     global pws
     global fp
     
-    vprintf("loading from path: '%s'", pwlist4_path)
     pws = load_pwlist4(pwlist4_path)
     fp = pwlist4_path
     

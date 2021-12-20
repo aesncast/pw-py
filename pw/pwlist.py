@@ -458,7 +458,7 @@ def parse_pwlist4_sequence(lines, i):
     i += 1
     j = i
     
-    while lines[i] != "\n" and i < len(lines):
+    while i < len(lines) and lines[i] != "\n" and lines[i] != "":
         i += 1
         
     segstr = str.join(" ", [l.strip() for l in lines[j:i]])
